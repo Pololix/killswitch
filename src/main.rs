@@ -67,6 +67,9 @@ fn handle_state(state: State) {
     if !state.can_prev || !state.can_pause {
         run("pkill spotify");
         run("spotify-launcher");
+
+        thread::sleep(Duration::from_secs(1));
+
         run("playerctl play");
     }
 }
