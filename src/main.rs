@@ -18,6 +18,8 @@ pub struct State {
 }
 
 fn main() -> Result<(), dbus::Error> {
+    spawn("spotify-launcher");
+
     let connection = Connection::new_session()?;
 
     loop {
