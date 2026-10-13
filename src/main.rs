@@ -23,10 +23,16 @@ pub struct State {
 fn main() -> Result<(), dbus::Error> {
     let connection = Connection::new_session()?;
 
+    println!("Starting loop");
+    let mut count = 0;
+
     loop {
+        println!("Iteration {0}", count);
+        count += 1;
+
         match get_state(&connection) {
             Ok(state) => handle_state(state),
-            Err(error) => eprint!("Poll error: {error}"),
+            Err(error) => println!("Couldnt fetch state: {error}"),
         }
 
         thread::sleep(POLL);
@@ -61,16 +67,20 @@ fn get_state(connection: &Connection) -> Result<State, dbus::Error> {
 
 fn handle_state(state: State) {
     if !state.is_playing {
+        println!("Not playing, not touching");
         return;
     }
 
     if !state.can_prev || !state.can_pause {
+        println!("Rebooting");
         run("pkill spotify");
         run("spotify-launcher");
+        println!("Rebooted");
 
         thread::sleep(Duration::from_secs(1));
 
         run("playerctl play");
+        println!("Pressed played");
     }
 }
 
