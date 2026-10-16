@@ -57,6 +57,7 @@ fn get_state(connection: &Connection) -> Result<State, dbus::Error> {
         can_prev: read_prop("CanGoPrevious"),
     })
 }
+
 fn handle_state(state: State) {
     if !state.is_playing {
         return;
@@ -64,8 +65,6 @@ fn handle_state(state: State) {
 
     if !state.can_prev || !state.can_pause {
         run("pkill -x spotify");
-        thread::sleep(Duration::from_millis(500));
-
         spawn("spotify-launcher");
 
         loop {
@@ -76,7 +75,11 @@ fn handle_state(state: State) {
             thread::sleep(Duration::from_millis(500));
         }
 
-        run("playerctl -p spotify play");
+        while !run("playerctl -p spotify play") {
+            thread::sleep(Duration::from_millis(500));
+        }
+
+        run("playerctl -p spotify next");
     }
 }
 
